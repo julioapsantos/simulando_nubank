@@ -77,6 +77,15 @@ main {
   flex-direction: column;
   align-items: center;
   text-align: center;
+  color: #333;
+  cursor: pointer; /* Muda o cursor para indicar que é clicável */
+  transition: transform 0.2s ease, background-color 0.2s ease; /* Efeito de transição suave */
+}
+
+.acao:hover {
+  transform: scale(1.1); /* Aumenta ligeiramente o ícone */
+  background-color: #e0e0e0; /* Muda a cor de fundo ao passar o mouse */
+  border-radius: 5px; /* Adiciona borda arredondada */
 }
 
 .icone-acao {

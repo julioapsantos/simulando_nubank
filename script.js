@@ -1,8 +1,8 @@
 class Conta {
-    constructor(numero, nome, saldo) {
+    constructor(numero, nome, saldoInicial) {
         this.numero = numero;
         this.nome = nome;
-        this.saldo = saldo;
+        this.saldo = saldoInicial;
     }
 }
 
@@ -17,9 +17,9 @@ class Banco {
         return this.numeroConta;
     }
 
-    criarConta(nome) {
+    criarConta(nome, saldoInicial = 0) {
         const novoNumeroConta = this.gerarNumeroConta();
-        const novaConta = new Conta(novoNumeroConta, nome, 0);
+        const novaConta = new Conta(novoNumeroConta, nome, saldoInicial);
         this.contas.push(novaConta);
         return novaConta;
     }
@@ -30,57 +30,100 @@ class Banco {
             alert("Conta não encontrada");
             return;
         }
+        if (typeof valor !== 'number' || valor <= 0) {
+            alert("Valor inválido");
+            return;
+        }
         conta.saldo += valor;
-        alert(`Depósito realizado! Saldo atual: R$ ${conta.saldo}`);
+        alert(`Depósito realizado! Saldo atual: R$ ${conta.saldo.toFixed(2)}`);
         this.atualizarSaldoConta(conta.saldo);
     }
 
     sacar(numeroConta, valor) {
         const conta = this.contas.find(c => c.numero === numeroConta);
         if (!conta) {
-            alert("Conta não encontrada");
+            alert("Conta não localizada");
             return;
         }
-        if (conta.saldo < valor) {
+        if (valor > conta.saldo) {
             alert("Saldo insuficiente");
             return;
         }
         conta.saldo -= valor;
-        alert(`Saque realizado! Saldo atual: R$ ${conta.saldo}`);
+        alert(`Saque realizado! Saldo atual: R$ ${conta.saldo.toFixed(2)}`);
         this.atualizarSaldoConta(conta.saldo);
     }
 
-    consultarSaldo(numeroConta) {
-        const conta = this.contas.find(c => c.numero === numeroConta);
-        if (!conta) {
-            alert("Conta não encontrada");
+    transferir(numeroContaOrigem, numeroContaDestino, valor) {
+        const contaOrigem = this.contas.find(c => c.numero === numeroContaOrigem);
+        const contaDestino = this.contas.find(c => c.numero === numeroContaDestino);
+
+        if (!contaOrigem || !contaDestino) {
+            alert("Uma ou ambas as contas não foram encontradas");
             return;
         }
-        alert(`Saldo atual: R$ ${conta.saldo}`);
-    }
 
-    listarContas() {
-        return this.contas;
+        if (valor > contaOrigem.saldo) {
+            alert("Saldo insuficiente para transferência");
+            return;
+        }
+
+        contaOrigem.saldo -= valor;
+        contaDestino.saldo += valor;
+        alert(`Transferência realizada! Saldo da conta origem: R$ ${contaOrigem.saldo.toFixed(2)}, Saldo da conta destino: R$ ${contaDestino.saldo.toFixed(2)}`);
+        this.atualizarSaldoConta(contaOrigem.saldo);
     }
 
     atualizarSaldoConta(saldo) {
         document.getElementById('valor-saldo').textContent = `R$ ${saldo.toFixed(2)}`;
     }
+
+    listarContas() {
+        return this.contas;
+    }
 }
 
 const banco = new Banco();
+let contaCorrente = null;
 
-// Criar conta na inicialização
-const nomeTitular = prompt("Digite o nome do titular da conta:");
-if (nomeTitular) {
-    const contaCorrente = banco.criarConta(nomeTitular);
-    alert(`Conta criada com sucesso! Número da conta: ${contaCorrente.numero}`);
-} else {
-    alert("Nome do titular não pode ser vazio.");
+// Função para atualizar o dropdown de contas
+function atualizarDropdownContas() {
+    const selectContas = document.getElementById('contas');
+    selectContas.innerHTML = ''; // Limpa o dropdown
+
+    banco.listarContas().forEach(conta => {
+        const option = document.createElement('option');
+        option.value = conta.numero;
+        option.textContent = `${conta.nome} - Conta: ${conta.numero}`;
+        selectContas.appendChild(option);
+    });
+
+    // Atualizar a conta corrente selecionada
+    selectContas.addEventListener('change', function() {
+        const numeroContaSelecionada = parseInt(this.value);
+        contaCorrente = banco.contas.find(c => c.numero === numeroContaSelecionada);
+        banco.atualizarSaldoConta(contaCorrente.saldo);
+    });
 }
 
-// Manipulação dos botões na interface
+// Botão para criar nova conta
+document.getElementById('botao-criar-conta').addEventListener('click', function() {
+    const nomeTitular = prompt("Digite o nome do titular da nova conta:");
+    if (nomeTitular) {
+        const novaConta = banco.criarConta(nomeTitular);
+        alert(`Conta criada com sucesso! Número da conta: ${novaConta.numero}`);
+        atualizarDropdownContas(); // Atualiza o dropdown com a nova conta
+    } else {
+        alert("Nome do titular não pode ser vazio.");
+    }
+});
+
+// Botões de ação
 document.getElementById('botao-depositar').addEventListener('click', function() {
+    if (!contaCorrente) {
+        alert("Selecione uma conta primeiro!");
+        return;
+    }
     const valorDeposito = parseFloat(prompt("Digite o valor que quer depositar:"));
     if (valorDeposito && valorDeposito > 0) {
         banco.depositar(contaCorrente.numero, valorDeposito);
@@ -90,24 +133,17 @@ document.getElementById('botao-depositar').addEventListener('click', function() 
 });
 
 document.getElementById('botao-transferir').addEventListener('click', function() {
-    const valorTransferencia = parseFloat(prompt("Digite o valor que quer transferir:"));
-    if (valorTransferencia && valorTransferencia > 0) {
-        banco.sacar(contaCorrente.numero, valorTransferencia);
-    } else {
-        alert("Valor inválido.");
+    if (!contaCorrente) {
+        alert("Selecione uma conta primeiro!");
+        return;
     }
-});
-
-document.getElementById('botao-emprestimo').addEventListener('click', function() {
-    alert("Funcionalidade de pegar emprestado em desenvolvimento.");
-});
-
-document.getElementById('botao-pix').addEventListener('click', function() {
-    alert("Funcionalidade de Pix em desenvolvimento.");
-});
-
-document.getElementById('botao-pagar').addEventListener('click', function() {
-    alert("Funcionalidade de pagamento em desenvolvimento.");
+    const numeroContaDestino = parseInt(prompt("Digite o número da conta de destino:"));
+    const valorTransferencia = parseFloat(prompt("Digite o valor que quer transferir:"));
+    if (valorTransferencia && valorTransferencia > 0 && numeroContaDestino) {
+        banco.transferir(contaCorrente.numero, numeroContaDestino, valorTransferencia);
+    } else {
+        alert("Valor ou número de conta inválidos.");
+    }
 });
 
 // Mostrar/Ocultar saldo
@@ -117,9 +153,48 @@ document.getElementById('botao-olho').addEventListener('click', function() {
     const saldoContaElement = document.getElementById('valor-saldo');
     if (saldoVisivel) {
         saldoContaElement.style.visibility = 'visible';
-        this.src = '/img/olho.png';  // Ícone de olho aberto
+        this.src = '/img/olho-aberto.png';  // Ícone de olho aberto
     } else {
         saldoContaElement.style.visibility = 'hidden';
-        this.src = '/img/olho-fechado.png';  // Ícone de olho fechado
+        this.src = '/img/olho.png';  // Ícone de olho fechado
     }
 });
+
+// Inicializa a criação da primeira conta
+atualizarDropdownContas(); // Chama para mostrar contas existentes, se houver
+// ... (Seu código existente)
+
+// Adicionar funcionalidade ao botão "Pix"
+document.getElementById('botao-pix').addEventListener('click', function() {
+    const numeroContaDestino = parseInt(prompt("Digite o número da conta de destino para o Pix:"));
+    const valorTransferencia = parseFloat(prompt("Digite o valor que deseja transferir:"));
+    if (valorTransferencia && valorTransferencia > 0 && numeroContaDestino) {
+        banco.transferir(contaCorrente.numero, numeroContaDestino, valorTransferencia);
+    } else {
+        alert("Valor ou número de conta inválidos.");
+    }
+});
+
+// Adicionar funcionalidade ao botão "Pegar Emprestado"
+document.getElementById('botao-emprestimo').addEventListener('click', function() {
+    const valorEmprestimo = parseFloat(prompt("Digite o valor que deseja pegar emprestado:"));
+    if (valorEmprestimo && valorEmprestimo > 0) {
+        banco.depositar(contaCorrente.numero, valorEmprestimo); // Aqui você pode modificar a lógica conforme sua necessidade
+        alert(`Empréstimo realizado! Saldo atual: R$ ${contaCorrente.saldo.toFixed(2)}`);
+    } else {
+        alert("Valor inválido.");
+    }
+});
+
+// Adicionar funcionalidade ao botão "Pagar"
+document.getElementById('botao-pagar').addEventListener('click', function() {
+    const valorPagamento = parseFloat(prompt("Digite o valor que deseja pagar:"));
+    if (valorPagamento && valorPagamento > 0) {
+        banco.sacar(contaCorrente.numero, valorPagamento); // Aqui você pode modificar a lógica conforme sua necessidade
+    } else {
+        alert("Valor inválido.");
+    }
+});
+
+// ... (Seu código existente)
+
