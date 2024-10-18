@@ -12,7 +12,7 @@ body {
 
 .container {
   width: 100%;
-  max-width: 400px; /* Controla a largura máxima do conteúdo */
+  max-width: 400px; 
   background-color: #FFFFFF;
   border-radius: 10px;
   overflow: hidden;
@@ -46,7 +46,7 @@ body {
 
 main {
   padding: 20px;
-  background-color: #F7F7F7; /* Fundo claro da parte principal */
+  background-color: #F7F7F7; 
   text-align: center;
 }
 
@@ -78,14 +78,14 @@ main {
   align-items: center;
   text-align: center;
   color: #333;
-  cursor: pointer; /* Muda o cursor para indicar que é clicável */
-  transition: transform 0.2s ease, background-color 0.2s ease; /* Efeito de transição suave */
+  cursor: pointer; 
+  transition: transform 0.2s ease, background-color 0.2s ease; 
 }
 
 .acao:hover {
-  transform: scale(1.1); /* Aumenta ligeiramente o ícone */
-  background-color: #e0e0e0; /* Muda a cor de fundo ao passar o mouse */
-  border-radius: 5px; /* Adiciona borda arredondada */
+  transform: scale(1.1); 
+  background-color: #e0e0e0; 
+  border-radius: 5px; 
 }
 
 .icone-acao {

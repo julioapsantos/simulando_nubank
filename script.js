@@ -86,10 +86,10 @@ class Banco {
 const banco = new Banco();
 let contaCorrente = null;
 
-// Função para atualizar o dropdown de contas
+
 function atualizarDropdownContas() {
     const selectContas = document.getElementById('contas');
-    selectContas.innerHTML = ''; // Limpa o dropdown
+    selectContas.innerHTML = ''; 
 
     banco.listarContas().forEach(conta => {
         const option = document.createElement('option');
@@ -98,7 +98,6 @@ function atualizarDropdownContas() {
         selectContas.appendChild(option);
     });
 
-    // Atualizar a conta corrente selecionada
     selectContas.addEventListener('change', function() {
         const numeroContaSelecionada = parseInt(this.value);
         contaCorrente = banco.contas.find(c => c.numero === numeroContaSelecionada);
@@ -106,19 +105,17 @@ function atualizarDropdownContas() {
     });
 }
 
-// Botão para criar nova conta
 document.getElementById('botao-criar-conta').addEventListener('click', function() {
     const nomeTitular = prompt("Digite o nome do titular da nova conta:");
     if (nomeTitular) {
         const novaConta = banco.criarConta(nomeTitular);
         alert(`Conta criada com sucesso! Número da conta: ${novaConta.numero}`);
-        atualizarDropdownContas(); // Atualiza o dropdown com a nova conta
+        atualizarDropdownContas(); 
     } else {
         alert("Nome do titular não pode ser vazio.");
     }
 });
 
-// Botões de ação
 document.getElementById('botao-depositar').addEventListener('click', function() {
     if (!contaCorrente) {
         alert("Selecione uma conta primeiro!");
@@ -146,25 +143,25 @@ document.getElementById('botao-transferir').addEventListener('click', function()
     }
 });
 
-// Mostrar/Ocultar saldo
+
 let saldoVisivel = true;
 document.getElementById('botao-olho').addEventListener('click', function() {
     saldoVisivel = !saldoVisivel;
     const saldoContaElement = document.getElementById('valor-saldo');
     if (saldoVisivel) {
         saldoContaElement.style.visibility = 'visible';
-        this.src = '/img/olho-aberto.png';  // Ícone de olho aberto
+        this.src = '/img/olho-aberto.png'; 
     } else {
         saldoContaElement.style.visibility = 'hidden';
-        this.src = '/img/olho.png';  // Ícone de olho fechado
+        this.src = '/img/olho.png';  
     }
 });
 
-// Inicializa a criação da primeira conta
-atualizarDropdownContas(); // Chama para mostrar contas existentes, se houver
-// ... (Seu código existente)
 
-// Adicionar funcionalidade ao botão "Pix"
+atualizarDropdownContas(); 
+
+
+
 document.getElementById('botao-pix').addEventListener('click', function() {
     const numeroContaDestino = parseInt(prompt("Digite o número da conta de destino para o Pix:"));
     const valorTransferencia = parseFloat(prompt("Digite o valor que deseja transferir:"));
@@ -175,26 +172,26 @@ document.getElementById('botao-pix').addEventListener('click', function() {
     }
 });
 
-// Adicionar funcionalidade ao botão "Pegar Emprestado"
+
 document.getElementById('botao-emprestimo').addEventListener('click', function() {
     const valorEmprestimo = parseFloat(prompt("Digite o valor que deseja pegar emprestado:"));
     if (valorEmprestimo && valorEmprestimo > 0) {
-        banco.depositar(contaCorrente.numero, valorEmprestimo); // Aqui você pode modificar a lógica conforme sua necessidade
+        banco.depositar(contaCorrente.numero, valorEmprestimo); 
         alert(`Empréstimo realizado! Saldo atual: R$ ${contaCorrente.saldo.toFixed(2)}`);
     } else {
         alert("Valor inválido.");
     }
 });
 
-// Adicionar funcionalidade ao botão "Pagar"
+
 document.getElementById('botao-pagar').addEventListener('click', function() {
     const valorPagamento = parseFloat(prompt("Digite o valor que deseja pagar:"));
     if (valorPagamento && valorPagamento > 0) {
-        banco.sacar(contaCorrente.numero, valorPagamento); // Aqui você pode modificar a lógica conforme sua necessidade
+        banco.sacar(contaCorrente.numero, valorPagamento); 
     } else {
         alert("Valor inválido.");
     }
 });
 
-// ... (Seu código existente)
+
 
